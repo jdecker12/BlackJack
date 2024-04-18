@@ -10,15 +10,15 @@ import { CardServiceService } from 'src/app/services/card-service.service';
   imports: [CommonModule],
   template: `
     <h2>Dealer</h2>
-    <div *ngIf="!dealerTotl && betMade && dealerHand[0] != undefined">
+    <div *ngIf="betMade && dealerHand[0] != undefined && !this.isStanding">
       {{dealerCards[0].rank}} of {{dealerCards[0].suit}}
     </div>
-    <div *ngIf="dealerTotl">
+    <div *ngIf="dealerTotl && this.playerTotal && this.isStanding">
       <div *ngFor="let card of dealerHand, let i = index">
         {{card.rank}} of {{card.suit}}  
       </div>
     </div>
-    <div *ngIf="dealerTotl">Total: {{dealerTotl}}</div>
+    <div *ngIf="dealerTotl && this.playerTotal && this.isStanding">Total: {{dealerTotl}}</div>
   `,
   styles: [
   ]
@@ -36,12 +36,45 @@ export class DealerHandComponent implements OnInit, OnChanges {
   dealerHand: Card[] = [];
   cardRanks!: string[];
   betMade: boolean = false;
+  playerTotal: number = 0;
+  isStanding: boolean = false;
 
   constructor(private cmnFuncts: CommonFunctionsService, private crdSrvs: CardServiceService) { }
 
   ngOnInit(): void {
     this.dealerCards.forEach((card: Card) => {
       this.dealerHand.push(card);
+    });
+
+    this.cmnFuncts.playerTotal.subscribe({
+      next: (plyrTotl) => {
+        this.playerTotal = plyrTotl;
+
+      }, error: (err) => {
+        console.log(`error subscribe to player total: ${err}`);
+      }
+    });
+
+    /// subscribe to isClearedBhvSbjct
+    this.cmnFuncts.isClearedSbjct.subscribe({
+      next: (isClear) => {
+        this.isCleared = isClear;
+        if (isClear == true) {
+          this.clearDealer();
+        }
+
+      }, error: (err) => {
+        console.log(`Error is clear bhv sbjct: ${err}`);
+      }
+    });
+
+    /// subscribe to isStanding bhvrSbjct
+    this.cmnFuncts.isStanding.subscribe({
+      next: (standing) => {
+        this.isStanding = standing;
+      }, error: (err) => {
+        console.log(`Error isStanding: ${err}`);
+      }
     });
   }
 
@@ -110,6 +143,8 @@ export class DealerHandComponent implements OnInit, OnChanges {
         }
       }
       this.dealerTotaler.emit(this.dealerTotl);
+      /// update the dealerTotl bhvSubjct
+      this.cmnFuncts.dealerTotal.next(this.dealerTotl);
     }
 
   }
@@ -119,6 +154,9 @@ export class DealerHandComponent implements OnInit, OnChanges {
     this.cardRanks = [];
     this.dealerHand = [];
     this.dealerTotl = undefined;
+    this.cmnFuncts.updateDealerTotalBhvSbjct(0);
+    this.cmnFuncts.updateIsClearedSbjct(true);
+    this.cmnFuncts.isStanding.next(false);
   }
 
 }

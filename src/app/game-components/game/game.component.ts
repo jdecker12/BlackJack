@@ -9,6 +9,7 @@ import { CommonFunctionsService } from 'src/app/services/common-functions.servic
 import { CardServiceService } from 'src/app/services/card-service.service';
 import { Observable, map, of } from 'rxjs';
 import { BetMakerComponent } from '../bet-maker/bet-maker.component';
+import { subscribe } from 'diagnostics_channel';
 
 @Component({
   selector: 'app-game',
@@ -31,7 +32,7 @@ import { BetMakerComponent } from '../bet-maker/bet-maker.component';
     <h3>Wager: </h3>
     <div>{{wager | currency}}</div>
 
-    <button (click)="clearRound()">Clear</button>
+    <!-- <button (click)="clearRound()">Clear</button> -->
 
     
     <bet-maker [isWinner]="isWinner" (makeWager)="getWager($event)" [isCleared]="isCleared"></bet-maker>
@@ -62,11 +63,15 @@ export class GameComponent implements OnInit, OnChanges {
   dealerTotl: number | undefined;
   initDealerComponent!: Observable<boolean>;
   dealerIsbust: boolean = false;
+  dealerTotalBhvSbjct: number | undefined;
+  dealerTotaled: boolean = false;
 
   playerTotal!: number | undefined;
   playerIsStanding: boolean = false;
   playerIsBust: boolean = false;
   playerHands: Card[][] = [];
+
+  playerTotalSubjct!: number;
 
 
   wager!: number | undefined;
@@ -89,38 +94,66 @@ export class GameComponent implements OnInit, OnChanges {
     }
     this.isSplit = this.cmmnFuncs.isSplit;
 
+    /// subscribe to the playerHands bhvr sbjct
     this.cmmnFuncs.playerHands.subscribe((playerHands: any) => {
       this.playerHands = playerHands;
-
-      if (this.playerHands && this.playerIsStanding && this.dealerTotl) {
-        this.determineWinner();
-      }
-
+      // if (this.playerHands && this.playerIsStanding && this.dealerTotl) {
+      //   this.determineWinner();
+      // }
       if (this.cmmnFuncs.isSplit) {
         this.isSplit = this.cmmnFuncs.isSplit;
+      }
+    });
+
+    /// subscribe to playerHands bhvr sbjct
+    this.cmmnFuncs.playerTotal.subscribe({
+      next: (total) => {
+        this.playerTotalSubjct = total;
+        this.playerTotal = total;
+
+        console.log(`Player total subscribe: ${this.playerTotal}`);
+        if (this.dealerTotalBhvSbjct) {
+          if (this.isBust(this.playerTotal!)) {
+            this.determineWinner();
+          }
+        }
+      }, error: (er) => {
+        console.log(`Player total subscribe error: ${er}`);
+      }
+    });
+
+    /// subscribe to dealer total bhvSbjct 
+    this.cmmnFuncs.dealerTotal.subscribe({
+      next: (total) => {
+        this.dealerTotalBhvSbjct = total;
+        this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
+        if (this.dealerIsbust || this.playerIsStanding) {
+          this.determineWinner();
+        }
       }
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['dealerTotl'] && !changes['dealerTotl'].firstChange) {
-      this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
-      if (this.playerIsStanding) {
-        this.determineWinner();
-      }
+      //alert(`game component: ${this.dealerTotalBhvSbjct}`);
+      //this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
+      // if (this.playerIsStanding) {
+      //   this.determineWinner();
+      // }
     }
 
     if (changes['playerTotal'] && !changes['playerTotal'].firstChange) {
 
-      alert(`changes playertotal dealrtotl: ${this.dealerTotl}`);
-      if (this.dealerTotl) {
-        this.determineWinner();
-      }
-      if (this.isBust(this.playerTotal!)) {
-        this.determineWinner();
-      }
-      alert('PlayerTotal');
-      this.determineWinner();
+      // alert(`changes playertotal dealrtotl: ${this.dealerTotl}`);
+      // if (this.dealerTotl) {
+      //   this.determineWinner();
+      // }
+      // if (this.isBust(this.playerTotal!)) {
+      //   this.determineWinner();
+      // }
+      // alert('PlayerTotal');
+      // this.determineWinner();
     }
   }
 
@@ -134,6 +167,7 @@ export class GameComponent implements OnInit, OnChanges {
   }
 
   getWager(data: any): void {
+    this.clearRound();
     this.isCleared = false;
     this.wager = data;
     this.newRound();
@@ -148,17 +182,17 @@ export class GameComponent implements OnInit, OnChanges {
 
   getDealerTotal(dealerTotal: number): void {
     this.dealerTotl = dealerTotal;
-    if (this.playerIsStanding || this.playerIsBust) {
-      this.determineWinner();
-    }
   }
 
   determineWinner(): void {
     if (!this.isBust(this.playerTotal!) && this.playerTotal! > this.dealerTotl! || this.isBust(this.dealerTotl!)) {
+      this.cmmnFuncs.isWinner.next(true);
       this.isWinner = true;
     } else if (!this.isBust(this.dealerTotl!) && this.dealerTotl! > this.playerTotal! || this.isBust(this.playerTotal!)) {
+      this.cmmnFuncs.isWinner.next(false);
       this.isWinner = false;
     } else {
+      this.cmmnFuncs.isWinner.next(undefined);
       this.isWinner = undefined;
     }
 
@@ -199,11 +233,7 @@ export class GameComponent implements OnInit, OnChanges {
   dealerMove(playerTotal: number): void {
     this.playerTotal = playerTotal;
     this.playerIsStanding = true;
-    alert(this.playerTotal);
     this.playerIsBust = this.isBust(playerTotal);
-    if (this.playerIsBust) {
-      this.determineWinner();
-    }
   }
 }
 

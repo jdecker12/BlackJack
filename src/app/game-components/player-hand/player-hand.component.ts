@@ -62,6 +62,7 @@ export class PlayerHandComponent implements OnInit, OnChanges {
   playerHands: Card[] = [];
   isSplit: boolean = false;
   splitHands: Card[][] = [];
+  totals: number[] = [];
 
   constructor(private funcs: CommonFunctionsService, private crdSrvc: CardServiceService) { }
 
@@ -69,6 +70,15 @@ export class PlayerHandComponent implements OnInit, OnChanges {
     this.funcs.updatePlayerHandSubject(this.playerCards!);
     this.funcs.playerHands.subscribe((playerHands) => {
       this.splitHands = playerHands;
+    });
+
+    this.funcs.isClearedSbjct.subscribe({
+      next: (isClear) => {
+        this.isCleared = isClear;
+        this.clearPlayer();
+      }, error: (err) => {
+        console.log(`Error is cleared subj: ${err}`);
+      }
     });
   }
 
@@ -102,6 +112,8 @@ export class PlayerHandComponent implements OnInit, OnChanges {
       this.total -= 10;
     }
     this.playerIsStanding.emit(this.total);
+    /// adding central source of truth for player total
+    this.funcs.updatePlayerTotalBhaveSbjct(this.total);
   }
 
   getRanks(): string[] {
@@ -174,6 +186,7 @@ export class PlayerHandComponent implements OnInit, OnChanges {
     this.playerHand = [];
     this.splitHands[handIndex].forEach((card: any) => {
       this.playerHand.push(card);
+      this.totals.push(this.total!);
       console.log(`Split Stand : ${card.rank} of ${card.suit}`);
       alert(`Split Stand  ${card.rank} of ${card.suit}`);
     });

@@ -15,6 +15,12 @@ export class CommonFunctionsService {
   isSplit: boolean = false;
 
   public playerHands = new BehaviorSubject<{ rank: string, suit: string }[][]>([]);
+  public playerTotal: BehaviorSubject<number> = new BehaviorSubject<number>(0);
+  public isClearedSbjct: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public dealerTotal: BehaviorSubject<number | undefined> = new BehaviorSubject<number | undefined>(0);
+  public isStanding: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  public isWinner: BehaviorSubject<boolean | undefined> = new BehaviorSubject<boolean | undefined>(undefined);
+
   currentHands = this.playerHands.asObservable();
 
 
@@ -24,6 +30,7 @@ export class CommonFunctionsService {
 
   stand(cardVals: string[]): number {
     this.processCardVals(cardVals);
+    this.isStanding.next(true);
     return this.calcTotal(this.hand);
   }
 
@@ -45,6 +52,18 @@ export class CommonFunctionsService {
 
   updatePlayerHandSubject(cards: any): void {
     this.playerHands.next(cards);
+  }
+
+  updatePlayerTotalBhaveSbjct(tot: number): void {
+    this.playerTotal.next(tot);
+  }
+
+  updateIsClearedSbjct(isCleared: boolean): void {
+    this.isClearedSbjct.next(isCleared);
+  }
+
+  updateDealerTotalBhvSbjct(total: number | undefined): void {
+    this.dealerTotal.next(total);
   }
 
   isBust(cardVals: number[]): boolean {

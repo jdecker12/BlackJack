@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 
 @Component({
   selector: 'bet-maker',
@@ -24,18 +25,31 @@ export class BetMakerComponent implements OnInit, OnChanges {
   @Output() makeWager = new EventEmitter<number>();
   @Input() isCleared!: boolean;
 
-  constructor() { }
+  constructor(private cmnFunctions: CommonFunctionsService) { }
 
   ngOnInit(): void {
     this.oneHundredTable();
+    this.cmnFunctions.isWinner.subscribe({
+      next: (winner) => {
+        this.isWinner = winner;
+        if (winner == true || winner == false) {
+          this.processFunds();
+        }
+      }
+    });
+    // this.cmnFunctions.isStanding.subscribe({
+    //   next: (isStanding: boolean) => {
+
+    //   }
+    // });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isWinner'] && !changes['isWinner'].firstChange) {
-      if (this.isWinner == true || this.isWinner == false) {
-        this.processFunds();
-      }
-    }
+    // if (changes['isWinner'] && !changes['isWinner'].firstChange) {
+    //   if (this.isWinner == true || this.isWinner == false) {
+    //     this.processFunds();
+    //   }
+    //}
     if (changes['isCleared'] && !changes['isCleared'].firstChange && changes['isWinner'] && !changes['isWinner'].firstChange) {
 
     }
@@ -52,8 +66,10 @@ export class BetMakerComponent implements OnInit, OnChanges {
   }
 
   placeBet(wager: any): void {
-    this.playerWager = wager
+    this.cmnFunctions.updateIsClearedSbjct(false);
+    this.playerWager = wager;
     this.makeWager.emit(wager);
+    this.cmnFunctions.isStanding.next(false);
   }
 
   processFunds(): void {
