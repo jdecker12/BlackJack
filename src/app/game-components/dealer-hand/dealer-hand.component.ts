@@ -88,14 +88,7 @@ export class DealerHandComponent implements OnInit, OnChanges {
       this.betMade = true;
     }
     if (changes['initDealer'] && !changes['initDealer'].firstChange) {
-      //alert(`initDealer: ${this.initDealer}`)
       this.dealerTotal();
-    }
-    if (changes['isCleared'] && !changes['isCleared'].firstChange) {
-      if (this.isCleared) {
-        this.clearDealer();
-      }
-
     }
   }
 
@@ -154,8 +147,8 @@ export class DealerHandComponent implements OnInit, OnChanges {
     this.cardRanks = [];
     this.dealerHand = [];
     this.dealerTotl = undefined;
-    this.cmnFuncts.updateDealerTotalBhvSbjct(0);
-    this.cmnFuncts.updateIsClearedSbjct(true);
+    this.cmnFuncts.dealerTotal.next(undefined);
+    this.cmnFuncts.isClearedSbjct.next(true);
     this.cmnFuncts.isStanding.next(false);
   }
 

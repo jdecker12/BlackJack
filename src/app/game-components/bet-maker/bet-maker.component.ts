@@ -16,7 +16,7 @@ import { CommonFunctionsService } from 'src/app/services/common-functions.servic
   styles: [
   ]
 })
-export class BetMakerComponent implements OnInit, OnChanges {
+export class BetMakerComponent implements OnInit {
   /// properties //
   bets: number[] = [];
   playerWager: number | undefined;
@@ -37,22 +37,6 @@ export class BetMakerComponent implements OnInit, OnChanges {
         }
       }
     });
-    // this.cmnFunctions.isStanding.subscribe({
-    //   next: (isStanding: boolean) => {
-
-    //   }
-    // });
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    // if (changes['isWinner'] && !changes['isWinner'].firstChange) {
-    //   if (this.isWinner == true || this.isWinner == false) {
-    //     this.processFunds();
-    //   }
-    //}
-    if (changes['isCleared'] && !changes['isCleared'].firstChange && changes['isWinner'] && !changes['isWinner'].firstChange) {
-
-    }
   }
 
   /// functions ///
@@ -66,7 +50,7 @@ export class BetMakerComponent implements OnInit, OnChanges {
   }
 
   placeBet(wager: any): void {
-    this.cmnFunctions.updateIsClearedSbjct(false);
+    this.cmnFunctions.isClearedSbjct.next(false);
     this.playerWager = wager;
     this.makeWager.emit(wager);
     this.cmnFunctions.isStanding.next(false);
@@ -75,6 +59,5 @@ export class BetMakerComponent implements OnInit, OnChanges {
   processFunds(): void {
     this.isWinner ? this.playerBank += this.playerWager! : this.playerBank -= this.playerWager!;
   }
-
 
 }

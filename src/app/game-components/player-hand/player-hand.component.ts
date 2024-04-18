@@ -91,12 +91,6 @@ export class PlayerHandComponent implements OnInit, OnChanges {
       this.total = 0;
       this.over21Mssg = false;
     }
-    if (changes['isCleared'] && !changes['isCleared'].firstChange) {
-      if (this.isCleared) {
-        this.clearPlayer();
-      }
-
-    }
   }
 
   stand(): void {
@@ -113,7 +107,7 @@ export class PlayerHandComponent implements OnInit, OnChanges {
     }
     this.playerIsStanding.emit(this.total);
     /// adding central source of truth for player total
-    this.funcs.updatePlayerTotalBhaveSbjct(this.total);
+    this.funcs.playerTotal.next(this.total);
   }
 
   getRanks(): string[] {

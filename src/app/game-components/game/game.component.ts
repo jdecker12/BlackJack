@@ -46,8 +46,7 @@ import { subscribe } from 'diagnostics_channel';
     }
   `]
 })
-export class GameComponent implements OnInit, OnChanges {
-  ////////// todo note : split functionality only first bet processes and clear doesn't reset isSplit only if 21 o bust 
+export class GameComponent implements OnInit {
   /// properties ///
   suits: string[] = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
   ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
@@ -97,9 +96,6 @@ export class GameComponent implements OnInit, OnChanges {
     /// subscribe to the playerHands bhvr sbjct
     this.cmmnFuncs.playerHands.subscribe((playerHands: any) => {
       this.playerHands = playerHands;
-      // if (this.playerHands && this.playerIsStanding && this.dealerTotl) {
-      //   this.determineWinner();
-      // }
       if (this.cmmnFuncs.isSplit) {
         this.isSplit = this.cmmnFuncs.isSplit;
       }
@@ -133,30 +129,6 @@ export class GameComponent implements OnInit, OnChanges {
       }
     });
   }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['dealerTotl'] && !changes['dealerTotl'].firstChange) {
-      //alert(`game component: ${this.dealerTotalBhvSbjct}`);
-      //this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
-      // if (this.playerIsStanding) {
-      //   this.determineWinner();
-      // }
-    }
-
-    if (changes['playerTotal'] && !changes['playerTotal'].firstChange) {
-
-      // alert(`changes playertotal dealrtotl: ${this.dealerTotl}`);
-      // if (this.dealerTotl) {
-      //   this.determineWinner();
-      // }
-      // if (this.isBust(this.playerTotal!)) {
-      //   this.determineWinner();
-      // }
-      // alert('PlayerTotal');
-      // this.determineWinner();
-    }
-  }
-
 
   /// functions ///
 

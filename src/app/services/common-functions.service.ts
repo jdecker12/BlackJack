@@ -21,9 +21,6 @@ export class CommonFunctionsService {
   public isStanding: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   public isWinner: BehaviorSubject<boolean | undefined> = new BehaviorSubject<boolean | undefined>(undefined);
 
-  currentHands = this.playerHands.asObservable();
-
-
   constructor(private dataSrvc: CardServiceService) { }
 
   /// functions ///
@@ -54,18 +51,6 @@ export class CommonFunctionsService {
     this.playerHands.next(cards);
   }
 
-  updatePlayerTotalBhaveSbjct(tot: number): void {
-    this.playerTotal.next(tot);
-  }
-
-  updateIsClearedSbjct(isCleared: boolean): void {
-    this.isClearedSbjct.next(isCleared);
-  }
-
-  updateDealerTotalBhvSbjct(total: number | undefined): void {
-    this.dealerTotal.next(total);
-  }
-
   isBust(cardVals: number[]): boolean {
     return this.calcTotal(cardVals) > 21;
   }
@@ -94,12 +79,5 @@ export class CommonFunctionsService {
   calcTotal(cardVals: number[]): number {
     let total = cardVals.reduce((accumulator, currentVal) => accumulator + currentVal, 0);
     return total
-  }
-
-  clearHands(cards: Card[], cardRanks: string[], hand: Card[], total: number | undefined): void {
-    cards = [];
-    cardRanks = [];
-    hand = [];
-    total = undefined;
   }
 }
