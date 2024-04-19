@@ -4,6 +4,7 @@ import { Card } from 'src/app/models/card';
 import { Player } from 'src/app/models/player';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 import { CardServiceService } from 'src/app/services/card-service.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'player-hand',
@@ -64,6 +65,8 @@ export class PlayerHandComponent implements OnInit, OnChanges {
   splitHands: Card[][] = [];
   totals: number[] = [];
 
+  isClearSubscription!: Subscription;
+
   constructor(private funcs: CommonFunctionsService, private crdSrvc: CardServiceService) { }
 
   ngOnInit(): void {
@@ -72,7 +75,7 @@ export class PlayerHandComponent implements OnInit, OnChanges {
       this.splitHands = playerHands;
     });
 
-    this.funcs.isClearedSbjct.subscribe({
+    this.isClearSubscription = this.funcs.isClearedSbjct.subscribe({
       next: (isClear) => {
         this.isCleared = isClear;
         this.clearPlayer();
@@ -196,5 +199,9 @@ export class PlayerHandComponent implements OnInit, OnChanges {
     this.over21Mssg = false;
     this.isSplit = false;
     this.splitHands = [[]];
+  }
+
+  ngOnDestroy(): void {
+    this.isClearSubscription.unsubscribe();
   }
 }

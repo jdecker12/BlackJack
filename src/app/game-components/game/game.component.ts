@@ -7,7 +7,7 @@ import { DealerHandComponent } from '../dealer-hand/dealer-hand.component';
 import { PlayerHandComponent } from '../player-hand/player-hand.component';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 import { CardServiceService } from 'src/app/services/card-service.service';
-import { Observable, map, of } from 'rxjs';
+import { Observable, Subscription, map, of } from 'rxjs';
 import { BetMakerComponent } from '../bet-maker/bet-maker.component';
 import { subscribe } from 'diagnostics_channel';
 
@@ -31,9 +31,6 @@ import { subscribe } from 'diagnostics_channel';
     </div>
     <h3>Wager: </h3>
     <div>{{wager | currency}}</div>
-
-    <!-- <button (click)="clearRound()">Clear</button> -->
-
     
     <bet-maker [isWinner]="isWinner" (makeWager)="getWager($event)" [isCleared]="isCleared"></bet-maker>
 
@@ -79,6 +76,10 @@ export class GameComponent implements OnInit {
   isCleared: boolean = false;
   isSplit: boolean = false;
 
+  playerHandsSubscription!: Subscription;
+  playerTotalSubscription!: Subscription;
+  dealerTotalSubscription!: Subscription;
+
 
 
 
@@ -102,7 +103,7 @@ export class GameComponent implements OnInit {
     });
 
     /// subscribe to playerHands bhvr sbjct
-    this.cmmnFuncs.playerTotal.subscribe({
+    this.playerTotalSubscription = this.playerTotalSubscription = this.cmmnFuncs.playerTotal.subscribe({
       next: (total) => {
         this.playerTotalSubjct = total;
         this.playerTotal = total;
@@ -119,7 +120,7 @@ export class GameComponent implements OnInit {
     });
 
     /// subscribe to dealer total bhvSbjct 
-    this.cmmnFuncs.dealerTotal.subscribe({
+    this.playerTotalSubscription = this.cmmnFuncs.dealerTotal.subscribe({
       next: (total) => {
         this.dealerTotalBhvSbjct = total;
         this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
@@ -206,6 +207,12 @@ export class GameComponent implements OnInit {
     this.playerTotal = playerTotal;
     this.playerIsStanding = true;
     this.playerIsBust = this.isBust(playerTotal);
+  }
+
+  ngOnDestroy(): void {
+    this.playerTotalSubscription.unsubscribe();
+    this.playerTotalSubscription.unsubscribe();
+    this.playerTotalSubscription.unsubscribe();
   }
 }
 

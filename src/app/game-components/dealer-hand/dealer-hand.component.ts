@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Card } from 'src/app/models/card';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 import { CardServiceService } from 'src/app/services/card-service.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'dealer-hand',
@@ -39,6 +40,9 @@ export class DealerHandComponent implements OnInit, OnChanges {
   playerTotal: number = 0;
   isStanding: boolean = false;
 
+  playerTotalSubscriotion!: Subscription;
+  isClearSubcription!: Subscription;
+
   constructor(private cmnFuncts: CommonFunctionsService, private crdSrvs: CardServiceService) { }
 
   ngOnInit(): void {
@@ -46,7 +50,7 @@ export class DealerHandComponent implements OnInit, OnChanges {
       this.dealerHand.push(card);
     });
 
-    this.cmnFuncts.playerTotal.subscribe({
+    this.playerTotalSubscriotion = this.cmnFuncts.playerTotal.subscribe({
       next: (plyrTotl) => {
         this.playerTotal = plyrTotl;
 
@@ -56,7 +60,7 @@ export class DealerHandComponent implements OnInit, OnChanges {
     });
 
     /// subscribe to isClearedBhvSbjct
-    this.cmnFuncts.isClearedSbjct.subscribe({
+    this.isClearSubcription = this.cmnFuncts.isClearedSbjct.subscribe({
       next: (isClear) => {
         this.isCleared = isClear;
         if (isClear == true) {
@@ -150,6 +154,11 @@ export class DealerHandComponent implements OnInit, OnChanges {
     this.cmnFuncts.dealerTotal.next(undefined);
     this.cmnFuncts.isClearedSbjct.next(true);
     this.cmnFuncts.isStanding.next(false);
+  }
+
+  ngOnDestroy(): void {
+    this.playerTotalSubscriotion.unsubscribe();
+    this.isClearSubcription.unsubscribe();
   }
 
 }
