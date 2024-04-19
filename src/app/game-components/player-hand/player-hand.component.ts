@@ -66,12 +66,13 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   totals: number[] = [];
 
   isClearSubscription!: Subscription;
+  playerHandsSubscription!: Subscription;
 
   constructor(private funcs: CommonFunctionsService, private crdSrvc: CardServiceService) { }
 
   ngOnInit(): void {
     this.funcs.updatePlayerHandSubject(this.playerCards!);
-    this.funcs.playerHands.subscribe((playerHands) => {
+    this.playerHandsSubscription = this.funcs.playerHands.subscribe((playerHands) => {
       this.splitHands = playerHands;
     });
 
@@ -202,6 +203,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.playerHandsSubscription.unsubscribe();
     this.isClearSubscription.unsubscribe();
   }
 }

@@ -42,6 +42,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   playerTotalSubscriotion!: Subscription;
   isClearSubcription!: Subscription;
+  isStandingSubscription!: Subscription;
 
   constructor(private cmnFuncts: CommonFunctionsService, private crdSrvs: CardServiceService) { }
 
@@ -73,7 +74,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
     });
 
     /// subscribe to isStanding bhvrSbjct
-    this.cmnFuncts.isStanding.subscribe({
+    this.isStandingSubscription = this.cmnFuncts.isStanding.subscribe({
       next: (standing) => {
         this.isStanding = standing;
       }, error: (err) => {
@@ -158,6 +159,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy(): void {
     this.playerTotalSubscriotion.unsubscribe();
     this.isClearSubcription.unsubscribe();
+    this.isStandingSubscription.unsubscribe();
   }
 
 }

@@ -32,7 +32,7 @@ export class BetMakerComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.oneHundredTable();
-    this.cmnFunctions.isWinner.subscribe({
+    this.isWinnerSubscription = this.cmnFunctions.isWinner.subscribe({
       next: (winner) => {
         this.isWinner = winner;
         if (winner == true || winner == false) {

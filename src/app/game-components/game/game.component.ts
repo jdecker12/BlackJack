@@ -9,7 +9,6 @@ import { CommonFunctionsService } from 'src/app/services/common-functions.servic
 import { CardServiceService } from 'src/app/services/card-service.service';
 import { Observable, Subscription, map, of } from 'rxjs';
 import { BetMakerComponent } from '../bet-maker/bet-maker.component';
-import { subscribe } from 'diagnostics_channel';
 
 @Component({
   selector: 'app-game',
@@ -95,7 +94,7 @@ export class GameComponent implements OnInit, OnDestroy {
     this.isSplit = this.cmmnFuncs.isSplit;
 
     /// subscribe to the playerHands bhvr sbjct
-    this.cmmnFuncs.playerHands.subscribe((playerHands: any) => {
+    this.playerHandsSubscription = this.cmmnFuncs.playerHands.subscribe((playerHands: any) => {
       this.playerHands = playerHands;
       if (this.cmmnFuncs.isSplit) {
         this.isSplit = this.cmmnFuncs.isSplit;
@@ -120,7 +119,7 @@ export class GameComponent implements OnInit, OnDestroy {
     });
 
     /// subscribe to dealer total bhvSbjct 
-    this.playerTotalSubscription = this.cmmnFuncs.dealerTotal.subscribe({
+    this.dealerTotalSubscription = this.cmmnFuncs.dealerTotal.subscribe({
       next: (total) => {
         this.dealerTotalBhvSbjct = total;
         this.isBust(this.dealerTotl!) ? this.dealerIsbust = true : this.dealerIsbust = false;
@@ -210,9 +209,9 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.playerHandsSubscription.unsubscribe();
     this.playerTotalSubscription.unsubscribe();
-    this.playerTotalSubscription.unsubscribe();
-    this.playerTotalSubscription.unsubscribe();
+    this.dealerTotalSubscription.unsubscribe();
   }
 }
 
