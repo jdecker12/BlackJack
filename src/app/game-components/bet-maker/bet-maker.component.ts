@@ -1,6 +1,7 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'bet-maker',
@@ -16,7 +17,7 @@ import { CommonFunctionsService } from 'src/app/services/common-functions.servic
   styles: [
   ]
 })
-export class BetMakerComponent implements OnInit {
+export class BetMakerComponent implements OnInit, OnDestroy {
   /// properties //
   bets: number[] = [];
   playerWager: number | undefined;
@@ -24,6 +25,8 @@ export class BetMakerComponent implements OnInit {
   @Input() isWinner: boolean | undefined;
   @Output() makeWager = new EventEmitter<number>();
   @Input() isCleared!: boolean;
+
+  isWinnerSubscription!: Subscription;
 
   constructor(private cmnFunctions: CommonFunctionsService) { }
 
@@ -58,6 +61,10 @@ export class BetMakerComponent implements OnInit {
 
   processFunds(): void {
     this.isWinner ? this.playerBank += this.playerWager! : this.playerBank -= this.playerWager!;
+  }
+
+  ngOnDestroy(): void {
+    this.isWinnerSubscription.unsubscribe();
   }
 
 }

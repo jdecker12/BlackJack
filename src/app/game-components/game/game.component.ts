@@ -1,4 +1,4 @@
-import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from 'src/app/shared-components/header/header.component';
 import { FooterComponent } from 'src/app/shared-components/footer/footer.component';
@@ -43,7 +43,7 @@ import { subscribe } from 'diagnostics_channel';
     }
   `]
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
   /// properties ///
   suits: string[] = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
   ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];

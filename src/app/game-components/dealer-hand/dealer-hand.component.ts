@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card } from 'src/app/models/card';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
@@ -24,7 +24,7 @@ import { Subscription } from 'rxjs';
   styles: [
   ]
 })
-export class DealerHandComponent implements OnInit, OnChanges {
+export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   /// properties ///
   @Input() dealerCards!: Card[];
   @Input() initDealer!: number;
@@ -107,7 +107,6 @@ export class DealerHandComponent implements OnInit, OnChanges {
     });
     return this.dealerRanks;
   }
-
 
   processVals(): void {
     let ranks = this.getRanks();

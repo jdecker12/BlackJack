@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Card } from 'src/app/models/card';
 import { Player } from 'src/app/models/player';
@@ -41,7 +41,7 @@ import { Subscription } from 'rxjs';
   styles: [
   ]
 })
-export class PlayerHandComponent implements OnInit, OnChanges {
+export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   // properties //
   @Input() playerCards!: Card[];
   @Input() playerDeck!: { rank: string, suit: string }[];
