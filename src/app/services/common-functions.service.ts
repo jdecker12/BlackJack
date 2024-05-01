@@ -35,7 +35,7 @@ export class CommonFunctionsService {
     return this.dataSrvc.dealCard(deck);
   }
 
-  split(deck: { rank: string, suit: string }[], currHand: Card[]): Card[] {
+  split(deck: Card[], currHand: Card[]): Card[] {
     let splitDeal1: Card | undefined = this.dataSrvc.dealCard(deck);
     let splitDeal2: Card | undefined = this.dataSrvc.dealCard(deck);
 

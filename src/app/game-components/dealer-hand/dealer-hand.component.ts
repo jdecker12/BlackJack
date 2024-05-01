@@ -48,7 +48,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   /// properties ///
   @Input() dealerCards!: Card[];
   @Input() initDealer!: number;
-  @Input() playerDeck!: { rank: string, suit: string }[];
+  @Input() playerDeck!: Card[];
   @Input() isCleared!: boolean;
   @Output() updateDeck = new EventEmitter<{ rank: string, suit: string }[]>();
   @Output() dealerTotaler = new EventEmitter<number>();
@@ -65,6 +65,8 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   isClearSubcription!: Subscription;
   isStandingSubscription!: Subscription;
 
+  gameDeck: Card[] = [];
+
   constructor(private cmnFuncts: CommonFunctionsService, private crdSrvs: CardServiceService) { }
 
   ngOnInit(): void {
@@ -78,6 +80,15 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
 
       }, error: (err) => {
         console.log(`error subscribe to player total: ${err}`);
+      }
+    });
+
+    /// subscribe to gameDeck bhvr sbjct
+    this.crdSrvs.gameDeck.subscribe({
+      next: (deck: Card[]) => {
+        this.gameDeck = deck;
+      }, error: (err: string) => {
+        console.log(`Error gameDeck dealerHand ${err}`);
       }
     });
 
@@ -151,12 +162,10 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
       setTimeout(() => {
 
         if (this.dealerTotl! > 0) {
-
-
           while (this.dealerTotl! < 17 && this.dealerTotl! < this.initDealer) {
             // alert('dealer hit');
             // process hit 
-            let hit: any = this.crdSrvs.dealCard(this.playerDeck);
+            let hit: any = this.crdSrvs.dealCard(this.gameDeck);
             this.dealerHand.push(hit);
             this.processVals();
 
@@ -166,17 +175,12 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
             if (this.dealerTotl > 21 && this.cardRanks?.indexOf('Ace') > 0) {
               this.dealerTotl -= 10;
             }
-
-
           }
         }
         this.dealerTotaler.emit(this.dealerTotl);
         /// update the dealerTotl bhvSubjct
         this.cmnFuncts.dealerTotal.next(this.dealerTotl);
       }, 750);
-      // this.dealerTotaler.emit(this.dealerTotl);
-      // /// update the dealerTotl bhvSubjct
-      // this.cmnFuncts.dealerTotal.next(this.dealerTotl);
     }
 
   }

@@ -70,7 +70,7 @@ import { CardComponent } from '../card/card.component';
 export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   // properties //
   @Input() playerCards!: Card[];
-  @Input() playerDeck!: { rank: string, suit: string }[];
+  @Input() playerDeck!: Card[];
   @Input() isCleared!: boolean;
   @Output() updateDeck = new EventEmitter<{ rank: string, suit: string }[]>();
   @Output() playerIsStanding = new EventEmitter<number>()
@@ -81,7 +81,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
     handTotal: 0,
     playerBank: 0
   }
-  playerHand: { rank: string, suit: string }[] = [];
+  playerHand: Card[] = [];
   ranksOnly: string[] = [];
   over21Mssg: boolean = false;
   cardRanks!: string[];
@@ -91,12 +91,22 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   splitHands: Card[][] = [];
   totals: number[] = [];
 
+  gameDeck: Card[] = [];
+
   isClearSubscription!: Subscription;
   playerHandsSubscription!: Subscription;
 
   constructor(private funcs: CommonFunctionsService, private crdSrvc: CardServiceService) { }
 
   ngOnInit(): void {
+    this.crdSrvc.gameDeck.subscribe({
+      next: (deck: Card[]) => {
+        this.gameDeck = deck;
+      }, error: (err: string) => {
+        console.log(`Error gameDeck in player-hand ${err}`);
+      }
+    });
+
     this.funcs.updatePlayerHandSubject(this.playerCards!);
     this.playerHandsSubscription = this.funcs.playerHands.subscribe((playerHands) => {
       this.splitHands = playerHands;
@@ -145,7 +155,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   getRanks(): string[] {
     this.ranksOnly = [];
     this.playerHand.forEach((card) => {
-      this.ranksOnly.push(card.rank);
+      this.ranksOnly.push(card.rank!);
     });
     return this.ranksOnly;
   }
@@ -158,7 +168,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   hitMe(index?: number): void {
     if (!this.funcs.isBust(this.funcs.hand)) {
-      let hit: any = this.crdSrvc.dealCard(this.playerDeck);
+      let hit: any = this.crdSrvc.dealCard(this.gameDeck);
 
       this.playerHand.push(hit);
       if (this.isSplit) {
@@ -194,7 +204,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
     this.isSplit = true;
     console.log(this.isSplit);
     this.playerHand = [];
-    let splitResult: Card[] = this.funcs.split(this.playerDeck, this.playerCards);
+    let splitResult: Card[] = this.funcs.split(this.gameDeck, this.playerCards);
     this.funcs.updatePlayerHandSubject(splitResult);
     console.log(this.funcs.playerHands);
     console.log(this.splitHands);

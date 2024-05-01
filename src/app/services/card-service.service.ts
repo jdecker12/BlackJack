@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Card } from '../models/card';
-import { Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +14,8 @@ export class CardServiceService {
   playerCard1: Card | undefined;
   playerCard2: Card | undefined;
 
+  public gameDeck = new BehaviorSubject<Card[]>([]);
+
   constructor() { }
 
   generateDeck(): Observable<{ rank: string, suit: string }[]> {
@@ -22,6 +24,7 @@ export class CardServiceService {
         this.deck.push({ suit, rank });
       }
     }
+    this.gameDeck.next(this.deck);
     return of(this.deck);
   }
 
@@ -35,8 +38,18 @@ export class CardServiceService {
     return cards;
   }
 
-  dealCard(cards: { rank: string, suit: string }[]): Card | undefined {
+  dealCard(cards: Card[]): Card | undefined {
+    if (cards.length == 0) {
+      this.generateDeck().subscribe({
+        next: (deck: Card[]) => {
+          cards = deck;
+        }, error: (err: string) => {
+          console.log(`Error cardService dealing card: ${err}`);
+        }
+      });
+    }
     let result = cards.shift();
+    this.gameDeck.next(cards);
     return result;
   }
 

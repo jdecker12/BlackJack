@@ -56,7 +56,7 @@ export class GameComponent implements OnInit, OnDestroy {
   /// properties ///
   suits: string[] = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
   ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace'];
-  deck: { rank: string, suit: string }[] = [];
+  deck: Card[] = [];
   dealerCard1: Card | undefined;
   dealerCard2: Card | undefined;
   playerCard1: Card | undefined;
@@ -95,6 +95,14 @@ export class GameComponent implements OnInit, OnDestroy {
   constructor(private crdSvc: CardServiceService, private cmmnFuncs: CommonFunctionsService) { }
 
   ngOnInit(): void {
+    this.deck = [];
+    this.crdSvc.generateDeck().subscribe({
+      next: (deck): void => {
+        this.deck = deck;
+      }, error: (err): void => {
+        console.log(err);
+      }
+    });
     this.newRound();
     console.log(this.crdSvc.deck);
     if (this.dealerCard1 != undefined && this.dealerCard2 != undefined) {
@@ -102,6 +110,16 @@ export class GameComponent implements OnInit, OnDestroy {
       this.dealerHand.push(this.dealerCard2);
     }
     this.isSplit = this.cmmnFuncs.isSplit;
+
+    /// subscribe to gameDeck bhvr sbjct
+    this.crdSvc.gameDeck.subscribe({
+      next: (deck: Card[]) => {
+        this.deck = deck;
+        console.log(`game-component deck: ${this.deck.length}`);
+      }, error: (err: any) => {
+        console.log(`Error generating deck: ${err}`);
+      }
+    });
 
     /// subscribe to the playerHands bhvr sbjct
     this.playerHandsSubscription = this.cmmnFuncs.playerHands.subscribe((playerHands: any) => {
@@ -170,7 +188,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!this.isBust(this.playerTotal!) && this.playerTotal! > this.dealerTotl! || this.isBust(this.dealerTotl!)) {
       this.cmmnFuncs.isWinner.next(true);
       this.isWinner = true;
-    } else if (!this.isBust(this.dealerTotl!) && this.dealerTotl! > this.playerTotal! || this.isBust(this.playerTotal!) || this.dealerTotl == 21) {
+    } else if (!this.isBust(this.dealerTotl!) && this.dealerTotl! > this.playerTotal! || this.isBust(this.playerTotal!) || this.dealerTotl == 21 && this.playerTotal != 21) {
       this.cmmnFuncs.isWinner.next(false);
       this.isWinner = false;
     } else {
@@ -182,16 +200,18 @@ export class GameComponent implements OnInit, OnDestroy {
 
   newRound(): void {
     // generate the deck
-    this.deck = [];
-    this.crdSvc.generateDeck().subscribe({
-      next: (deck): void => {
-        this.deck = deck;
-      }, error: (err): void => {
-        console.log(err);
-      }
-    });
+    // this.deck = [];
+    // this.crdSvc.generateDeck().subscribe({
+    //   next: (deck): void => {
+    //     this.deck = deck;
+    //   }, error: (err): void => {
+    //     console.log(err);
+    //   }
+    // });
     // shuffle the deck
-    this.crdSvc.shuffleDeck(this.deck);
+
+    this.deck = this.crdSvc.shuffleDeck(this.deck);
+    this.crdSvc.gameDeck.next(this.deck);
 
     // initial deal 
     this.dealerCard1 = this.crdSvc.dealCard(this.deck);
