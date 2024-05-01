@@ -50,7 +50,6 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   @Input() initDealer!: number;
   @Input() playerDeck!: Card[];
   @Input() isCleared!: boolean;
-  @Output() updateDeck = new EventEmitter<{ rank: string, suit: string }[]>();
   @Output() dealerTotaler = new EventEmitter<number>();
   dealerRanks: string[] = [];
   dealerTotl!: number | undefined;

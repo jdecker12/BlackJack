@@ -202,12 +202,9 @@ export class CardComponent implements OnInit, OnChanges {
   }
 
   determineDealerCards(index: number): boolean {
-    // console.log(`index: ${index} isdealer: ${this.isDealerCards} playerTotal: ${this.playerTotal}`);
     if (this.isDealerCards && index == 1 && this.playerTotal == 0) {
-      console.log('true');
       return true;
     } else {
-      console.log('false');
       return false;
     }
   }

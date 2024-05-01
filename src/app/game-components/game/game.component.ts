@@ -17,8 +17,8 @@ import { BetMakerComponent } from '../bet-maker/bet-maker.component';
   template: `
   <div id="bljk-content">
     <app-header></app-header>
-    <dealer-hand [dealerCards]="[dealerCard1!, dealerCard2!]" [initDealer]="playerTotal!" [playerDeck]="this.deck" (updateDeck)="updateDeck($event)" (dealerTotaler)="getDealerTotal($event)" [isCleared]="isCleared"></dealer-hand>
-    <player-hand [playerCards]="[playerCard1!, playerCard2!]" [playerDeck]="this.deck" (updateDeck)="updateDeck($event)" (playerIsStanding)="dealerMove($event)" [isCleared]="isCleared"></player-hand>
+    <dealer-hand [dealerCards]="[dealerCard1!, dealerCard2!]" [initDealer]="playerTotal!" [playerDeck]="this.deck"  (dealerTotaler)="getDealerTotal($event)" [isCleared]="isCleared"></dealer-hand>
+    <player-hand [playerCards]="[playerCard1!, playerCard2!]"  (playerIsStanding)="dealerMove($event)" [isCleared]="isCleared"></player-hand>
     <div *ngIf="!wagerMade">
       <h3>Make a wager</h3>
     </div>
@@ -104,7 +104,6 @@ export class GameComponent implements OnInit, OnDestroy {
       }
     });
     this.newRound();
-    console.log(this.crdSvc.deck);
     if (this.dealerCard1 != undefined && this.dealerCard2 != undefined) {
       this.dealerHand.push(this.dealerCard1);
       this.dealerHand.push(this.dealerCard2);
@@ -115,7 +114,6 @@ export class GameComponent implements OnInit, OnDestroy {
     this.crdSvc.gameDeck.subscribe({
       next: (deck: Card[]) => {
         this.deck = deck;
-        console.log(`game-component deck: ${this.deck.length}`);
       }, error: (err: any) => {
         console.log(`Error generating deck: ${err}`);
       }
@@ -135,7 +133,6 @@ export class GameComponent implements OnInit, OnDestroy {
         this.playerTotalSubjct = total;
         this.playerTotal = total;
 
-        console.log(`Player total subscribe: ${this.playerTotal}`);
         if (this.dealerTotalBhvSbjct) {
           if (this.isBust(this.playerTotal!)) {
             this.determineWinner();
@@ -159,12 +156,6 @@ export class GameComponent implements OnInit, OnDestroy {
   }
 
   /// functions ///
-
-  updateDeck(data: any): void {
-    this.deck = [];
-    this.deck = data;
-    console.log(this.deck);
-  }
 
   getWager(data: any): void {
     this.clearRound();

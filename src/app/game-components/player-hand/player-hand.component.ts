@@ -70,9 +70,7 @@ import { CardComponent } from '../card/card.component';
 export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   // properties //
   @Input() playerCards!: Card[];
-  @Input() playerDeck!: Card[];
   @Input() isCleared!: boolean;
-  @Output() updateDeck = new EventEmitter<{ rank: string, suit: string }[]>();
   @Output() playerIsStanding = new EventEmitter<number>()
   total: number | undefined;
   player: Player = {
@@ -142,8 +140,6 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
       this.processVals();
       this.total = this.funcs.calcTotal(this.funcs.hand);
     }
-    console.log(this.total);
-    console.log(`From stand: ${this.cardRanks}`);
     if (this.total > 21 && this.cardRanks.indexOf('Ace') > 0) {
       this.total -= 10;
     }
@@ -162,7 +158,6 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   processVals(): void {
     this.cardRanks = this.getRanks();
-    // alert(this.cardRanks);
     this.funcs.processCardVals(this.cardRanks);
   }
 
@@ -173,13 +168,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
       this.playerHand.push(hit);
       if (this.isSplit) {
         this.splitHands[index!].push(hit);
-        console.log(`Hit me split hands: ${this.splitHands[index!]}`);
-
       }
-      this.playerHand.forEach((card) => {
-        console.log(`Cards: ${card.rank} of ${card.suit}`);
-      });
-
       this.processVals();
       this.total = this.funcs.calcTotal(this.funcs.hand);
       this.over21Mssg = false;
@@ -202,12 +191,9 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   splitHand(): void {
     this.isSplit = true;
-    console.log(this.isSplit);
     this.playerHand = [];
     let splitResult: Card[] = this.funcs.split(this.gameDeck, this.playerCards);
     this.funcs.updatePlayerHandSubject(splitResult);
-    console.log(this.funcs.playerHands);
-    console.log(this.splitHands);
   }
 
   splitHit(handIndex: number): void {
@@ -223,8 +209,6 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
     this.splitHands[handIndex].forEach((card: any) => {
       this.playerHand.push(card);
       this.totals.push(this.total!);
-      console.log(`Split Stand : ${card.rank} of ${card.suit}`);
-      //alert(`Split Stand  ${card.rank} of ${card.suit}`);
     });
     this.stand();
   }
