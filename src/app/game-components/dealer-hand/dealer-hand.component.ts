@@ -4,25 +4,45 @@ import { Card } from 'src/app/models/card';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 import { CardServiceService } from 'src/app/services/card-service.service';
 import { Subscription } from 'rxjs';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'dealer-hand',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CardComponent],
   template: `
+  <div id="dealer-hand">
     <h2>Dealer</h2>
     <div *ngIf="betMade && dealerHand[0] != undefined && !this.isStanding">
-      {{dealerCards[0].rank}} of {{dealerCards[0].suit}}
-    </div>
-    <div *ngIf="dealerTotl && this.playerTotal && this.isStanding">
-      <div *ngFor="let card of dealerHand, let i = index">
-        {{card.rank}} of {{card.suit}}  
+      <div class="dealer-cards">
+        <playing-card class="dealer-playing-card" [playingCards]="this.dealerHand" [isDealerCards]="this.isDealerCards"></playing-card>
       </div>
     </div>
+    <div *ngIf="dealerTotl && this.playerTotal && this.isStanding">
+      <div class="dealer-cards">
+        <playing-card class="dealer-playing-card" [playingCards]="this.dealerHand"></playing-card>
+      </div>
     <div *ngIf="dealerTotl && this.playerTotal && this.isStanding">Total: {{dealerTotl}}</div>
+</div>
   `,
-  styles: [
-  ]
+  styles: [`
+  playing-card.dealer-playinig-card {
+    top: 100px;
+    position: relative;
+}
+  div#dealer-hand {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 200px;
+    .dealer-cards {
+    right: 30%;
+    transform: rotate(180deg);
+    top: 300px;
+    position: relative;
+    }
+}
+  `]
 })
 export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   /// properties ///
@@ -39,6 +59,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
   betMade: boolean = false;
   playerTotal: number = 0;
   isStanding: boolean = false;
+  isDealerCards: boolean = true;
 
   playerTotalSubscriotion!: Subscription;
   isClearSubcription!: Subscription;
@@ -111,7 +132,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   processVals(): void {
     let ranks = this.getRanks();
-    alert(ranks);
+    //alert(ranks);
     this.cmnFuncts.processCardVals(ranks);
   }
 
@@ -123,25 +144,39 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
     this.getRanks();
     this.cmnFuncts.processCardVals(this.dealerRanks);
     this.dealerTotl = this.cmnFuncts.calcTotal(this.cmnFuncts.hand);
+    //this.cmnFuncts.dealerTotal.next(this.dealerTotl);
     // test for player bust
     if (!this.isBust(this.initDealer)) {
       // blk jck dealer rule conditions for hit
-      while (this.dealerTotl < 17 && this.dealerTotl < this.initDealer) {
-        alert('dealer hit');
-        // process hit 
-        let hit: any = this.crdSrvs.dealCard(this.playerDeck);
-        this.dealerHand.push(hit);
-        this.processVals();
+      setTimeout(() => {
 
-        // update the total
-        this.dealerTotl = this.cmnFuncts.calcTotal(this.cmnFuncts.hand);
-        if (this.dealerTotl > 21 && this.cardRanks?.indexOf('Ace') > 0) {
-          this.dealerTotl -= 10;
+        if (this.dealerTotl! > 0) {
+
+
+          while (this.dealerTotl! < 17 && this.dealerTotl! < this.initDealer) {
+            // alert('dealer hit');
+            // process hit 
+            let hit: any = this.crdSrvs.dealCard(this.playerDeck);
+            this.dealerHand.push(hit);
+            this.processVals();
+
+            // update the total
+            this.dealerTotl = this.cmnFuncts.calcTotal(this.cmnFuncts.hand);
+            //this.cmnFuncts.dealerTotal.next(this.dealerTotl);
+            if (this.dealerTotl > 21 && this.cardRanks?.indexOf('Ace') > 0) {
+              this.dealerTotl -= 10;
+            }
+
+
+          }
         }
-      }
-      this.dealerTotaler.emit(this.dealerTotl);
-      /// update the dealerTotl bhvSubjct
-      this.cmnFuncts.dealerTotal.next(this.dealerTotl);
+        this.dealerTotaler.emit(this.dealerTotl);
+        /// update the dealerTotl bhvSubjct
+        this.cmnFuncts.dealerTotal.next(this.dealerTotl);
+      }, 750);
+      // this.dealerTotaler.emit(this.dealerTotl);
+      // /// update the dealerTotl bhvSubjct
+      // this.cmnFuncts.dealerTotal.next(this.dealerTotl);
     }
 
   }
@@ -154,6 +189,7 @@ export class DealerHandComponent implements OnInit, OnChanges, OnDestroy {
     this.cmnFuncts.dealerTotal.next(undefined);
     this.cmnFuncts.isClearedSbjct.next(true);
     this.cmnFuncts.isStanding.next(false);
+    this.isDealerCards = false;
   }
 
   ngOnDestroy(): void {

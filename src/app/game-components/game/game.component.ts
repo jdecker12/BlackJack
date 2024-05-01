@@ -15,14 +15,14 @@ import { BetMakerComponent } from '../bet-maker/bet-maker.component';
   standalone: true,
   imports: [CommonModule, HeaderComponent, FooterComponent, DealerHandComponent, PlayerHandComponent, BetMakerComponent],
   template: `
+  <div id="bljk-content">
     <app-header></app-header>
     <dealer-hand [dealerCards]="[dealerCard1!, dealerCard2!]" [initDealer]="playerTotal!" [playerDeck]="this.deck" (updateDeck)="updateDeck($event)" (dealerTotaler)="getDealerTotal($event)" [isCleared]="isCleared"></dealer-hand>
     <player-hand [playerCards]="[playerCard1!, playerCard2!]" [playerDeck]="this.deck" (updateDeck)="updateDeck($event)" (playerIsStanding)="dealerMove($event)" [isCleared]="isCleared"></player-hand>
-
     <div *ngIf="!wagerMade">
       <h3>Make a wager</h3>
     </div>
-    <div *ngIf="isWinner && wagerMade">
+    <div *ngIf="isWinner == true && wagerMade">
       <h3><i>Player wins!</i></h3> 
     </div>
     <div *ngIf="isWinner !== undefined && isWinner == false">
@@ -34,12 +34,22 @@ import { BetMakerComponent } from '../bet-maker/bet-maker.component';
     <bet-maker [isWinner]="isWinner" (makeWager)="getWager($event)" [isCleared]="isCleared"></bet-maker>
 
     <app-footer></app-footer>
+  </div>
   `,
   styles: [`
     body {
-      margin: 20px;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+      
     }
+    #bljk-content {
+      background-image: linear-gradient(to right top, #4c8f5d, #509362, #549766, #599c6b, #5da070, #599c6c, #549768, #509364, #428556, #347649, #25693c, #155b2f);
+      //background-image: radial-gradient(circle, #4c8f5d, #509362, #549766, #599c6b, #5da070, #599c6c, #549768, #509364, #428556, #347649, #25693c, #155b2f);
+      padding: 40px;
+    }  
+
+    
   `]
 })
 export class GameComponent implements OnInit, OnDestroy {
@@ -160,7 +170,7 @@ export class GameComponent implements OnInit, OnDestroy {
     if (!this.isBust(this.playerTotal!) && this.playerTotal! > this.dealerTotl! || this.isBust(this.dealerTotl!)) {
       this.cmmnFuncs.isWinner.next(true);
       this.isWinner = true;
-    } else if (!this.isBust(this.dealerTotl!) && this.dealerTotl! > this.playerTotal! || this.isBust(this.playerTotal!)) {
+    } else if (!this.isBust(this.dealerTotl!) && this.dealerTotl! > this.playerTotal! || this.isBust(this.playerTotal!) || this.dealerTotl == 21) {
       this.cmmnFuncs.isWinner.next(false);
       this.isWinner = false;
     } else {
@@ -189,15 +199,19 @@ export class GameComponent implements OnInit, OnDestroy {
     this.playerCard1 = this.crdSvc.dealCard(this.deck);
     this.playerCard2 = this.crdSvc.dealCard(this.deck);
     this.isWinner = undefined;
+    this.cmmnFuncs.isWinner.next(undefined);
+
   }
 
   clearRound(): void {
     this.dealerHand = [];
     this.wager = undefined;
     this.playerTotal = undefined;
+    this.cmmnFuncs.playerTotal.next(0);
     this.dealerTotl = undefined;
     this.dealerRanks = [];
     this.isWinner = undefined;
+    this.cmmnFuncs.isWinner.next(undefined);
     this.isCleared = true;
     this.playerIsStanding = false;
   }

@@ -5,41 +5,67 @@ import { Player } from 'src/app/models/player';
 import { CommonFunctionsService } from 'src/app/services/common-functions.service';
 import { CardServiceService } from 'src/app/services/card-service.service';
 import { Subscription } from 'rxjs';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'player-hand',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CardComponent],
   template: `
+  <div id="playerhand-wrapper">
     <h2>Player</h2>
-    <div *ngIf="!isSplit; else isSplitTemplate">
-      <div *ngFor="let card of playerHand, let i = index">
-        {{card.rank}} of {{card.suit}}
-      </div>
+    <div class="hand-one" *ngIf="!isSplit; else isSplitTemplate">
+      <!-- <div *ngFor="let card of playerHand, let i = index"> -->
+      <playing-card [playingCards]="this.playerHand"></playing-card>
+       
+      <!-- //</div> -->
       <div *ngIf="total">Total: {{total}}</div>
       <div *ngIf="over21Mssg">
         {{over21Txt}}
       </div>
-      <button (click)="stand()">Stand</button>
-      <button (click)="hitMe()">Hit</button>
-      <button (click)="splitHand()">Split</button>
+      <div class="player-buttons">
+        <button (click)="stand()">Stand</button>
+        <button (click)="hitMe()">Hit</button>
+        <button (click)="splitHand()">Split</button>
+      </div>
     </div>
-    <ng-template #isSplitTemplate>
+    <ng-template class="hand-two" #isSplitTemplate>
       <div *ngFor="let hands of splitHands; let i = index">
-        hand{{i + 1}}: {{hands[0].rank}} of {{hands[0].suit}}, {{hands[1].rank}} of {{hands[1].suit}}
+      <div class="hand-{{i}}">
+        <playing-card [playingCards]="hands"></playing-card>
+      </div>
+        <!-- hand{{i + 1}}: {{hands[0].rank}} of {{hands[0].suit}}, {{hands[1].rank}} of {{hands[1].suit}} -->
         <div *ngIf="total">Total: {{total}}</div>
         <div *ngIf="over21Mssg"></div>
-        <div>
+        <div class="player-buttons-{{i}}">
           <button (click)="splitStand(i)">Stand</button>
           <button (click)="splitHit(i)">Hit</button>
           <button (click)="splitHand()">Split</button>
         </div>
       </div>
-</ng-template>
-  <div>Is Cleared: {{isCleared}}</div>
+    </ng-template>
+  </div>
   `,
-  styles: [
-  ]
+  styles: [`
+    #playerhand-wrapper {
+      position: relative;
+      display: block;
+      .hand-0 {
+        left: 1%;
+        position: relative;
+      
+    }
+      .hand-1 {
+        left: 35%;
+        position: relative;
+        top: -20px;
+      }
+      .player-buttons {
+        //position: absolute;
+        //bottom : -50px;
+      }
+    }
+  `]
 })
 export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
   // properties //
@@ -95,6 +121,8 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
       this.total = 0;
       this.over21Mssg = false;
     }
+
+
   }
 
   stand(): void {
@@ -124,7 +152,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
 
   processVals(): void {
     this.cardRanks = this.getRanks();
-    alert(this.cardRanks);
+    // alert(this.cardRanks);
     this.funcs.processCardVals(this.cardRanks);
   }
 
@@ -186,7 +214,7 @@ export class PlayerHandComponent implements OnInit, OnChanges, OnDestroy {
       this.playerHand.push(card);
       this.totals.push(this.total!);
       console.log(`Split Stand : ${card.rank} of ${card.suit}`);
-      alert(`Split Stand  ${card.rank} of ${card.suit}`);
+      //alert(`Split Stand  ${card.rank} of ${card.suit}`);
     });
     this.stand();
   }
